@@ -1,26 +1,31 @@
 # Klike Data Science Challenge
 
-Análise exploratória, modelagem preditiva do **Klike Score** e protótipo interativo de recomendações para criativos. Dataset simulado do desafio Millai / Klike.
+Análise exploratória, modelagem preditiva do **Klike Score** e recomendações para criativos, com dados simulados do desafio.
 
-## Teste o Recommendations Engine
+## Teste sem modificar os notebooks (recomendado)
 
-**[Abrir notebook interativo](notebooks/parte-3-recommendations-engine.ipynb)**: informe uma campanha nova e clique em **Gerar recomendações**. Não é preciso alterar código. O formulário exige execução em JupyterLab ou no VS Code; o visualizador do GitHub não executa widgets.
+A interface Streamlit funciona no navegador e **substitui os resultados em cada execução**. Ao testar uma campanha, ela não altera arquivos `.ipynb` e não cria mudanças no Git.
 
-### Instalação
+Na raiz do repositório:
 
-Recomendado: Python 3.13. Abra um terminal **na raiz do repositório**:
-
-```bash
-python -m venv .venv
-# Windows PowerShell: .\.venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m jupyter lab
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Abra `notebooks/parte-3-recommendations-engine.ipynb`, selecione o kernel do ambiente virtual, execute as três células Python em ordem e preencha o formulário. Funciona também no VS Code com extensões Python e Jupyter.
+A página abrirá no navegador. Preencha as dez características do criativo e clique em **Gerar recomendações**. Cada novo envio substitui o resultado anterior.
 
-> O Ridge serializado foi treinado com **scikit-learn 1.9.1** (fixado nas dependências). Carregue arquivos joblib apenas de fontes confiáveis.
+## Notebooks de análise
+
+Os notebooks documentam a metodologia e os testes:
+- [Parte 1 — EDA](notebooks/parte-1.ipynb)
+- [Parte 2 — Modelagem](notebooks/parte-2.ipynb)
+- [Parte 3 — Metodologia](notebooks/parte-3.ipynb)
+- [Parte 3 — Interface ipywidgets](notebooks/parte-3-recommendations-engine.ipynb)
+
+A interface ipywidgets foi mantida como opção, e seu painel agora **substitui**, em vez de acumular, as respostas.
+
+**Importante:** ao executar notebooks versionados em Jupyter ou VS Code, o `.ipynb` pode ser marcado como modificado porque outputs e metadados são gravados dentro dele. Isso é comportamento normal e não implica mudança no código. Se você não alterou intencionalmente o notebook, use `git restore notebooks/parte-3-recommendations-engine.ipynb` para descartar apenas os outputs locais, após conferir que não há mudanças que queira guardar.
 
 ## Organização
 
@@ -31,7 +36,8 @@ models/features_klike.joblib
 notebooks/parte-1.ipynb
 notebooks/parte-2.ipynb
 notebooks/parte-3.ipynb                          # análise, evidências e testes
-notebooks/parte-3-recommendations-engine.ipynb   # interface interativa
+notebooks/parte-3-recommendations-engine.ipynb   # interface interativa opcional
+app.py                                           # interface Streamlit recomendada
 src/recommendations_engine.py                    # lógica reutilizável
 tests/test_recommendations_engine.py
 requirements.txt
