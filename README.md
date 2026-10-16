@@ -55,3 +55,13 @@ O delta Ridge compara previsões de configurações alternativas, **não efeitos
 O pipeline `joblib` da Parte 2 foi serializado com **scikit-learn 1.9.1**. O `requirements.txt` fixa essa versão, pois versões diferentes podem falhar na desserialização ou alterar resultados. Carregue artefatos `joblib` somente de fontes confiáveis.
 
 Para verificar a entrega: instale as dependências, selecione o kernel, reinicie o notebook e execute **Run All**. A documentação e as análises completas estão em `notebooks/parte-3.ipynb`.
+
+## Testes automatizados
+
+Após instalar as dependências compatíveis, execute na raiz:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Os testes cobrem divisão treino/teste, validação do input, isolamento das métricas pós-veiculação e as três recomendações da campanha de demonstração.
