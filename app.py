@@ -46,7 +46,7 @@ with st.form("campanha", clear_on_submit=False):
         has_cta = st.checkbox("CTA")
     with k5:
         is_retargeting = st.checkbox("Retargeting")
-    submitted = st.form_submit_button("Gerar recomendações", type="primary", use_container_width=True)
+    submitted = st.form_submit_button("Gerar recomendações", type="primary", width="stretch")
 
 if submitted:
     campanha = {
@@ -103,7 +103,11 @@ if resultado is not None:
                 "Feature", "Original", "Proposto", "Delta Ridge",
                 "Classificação", "Status decisão", "Justificativa",
             ]
-            st.dataframe(resultado["avaliacao"][colunas], use_container_width=True, hide_index=True)
+            # Normaliza os campos mistos apenas para a exibição via PyArrow.
+            tabela_diagnostico = resultado["avaliacao"][colunas].copy()
+            for coluna in ("Original", "Proposto"):
+                tabela_diagnostico[coluna] = tabela_diagnostico[coluna].astype("string")
+            st.dataframe(tabela_diagnostico, width="stretch", hide_index=True)
         else:
             st.write("Não existem alternativas aplicáveis.")
 
