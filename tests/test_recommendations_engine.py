@@ -53,3 +53,35 @@ def test_reprodutibilidade(engine,campanha):
         assert x["feature"]==y["feature"]
         assert np.isclose(x["ic_inferior"],y["ic_inferior"])
         assert np.isclose(x["ic_superior"],y["ic_superior"])
+
+@pytest.mark.parametrize("feature,original,proposto", [
+    ("format", "vertical", "horizontal"),
+    ("text_density", "low", "medium"),
+    ("video_duration_s", 16, 20),
+])
+def test_descricao_categorica_e_numerica(engine, feature, original, proposto):
+    descricao = engine.descrever_acao(feature, original, proposto)
+    assert isinstance(descricao, str) and descricao
+
+
+def test_recomendacoes_linha_real_dataset(engine):
+    """Linha real do treino: exemplo com três recomendações."""
+    campanha = engine.df_train.loc[
+        engine.df_train["campaign_id"] == "KLK-0090"
+    ].iloc[0]
+    resultado = engine.recomendar_campanha(campanha, n_bootstrap=2000)
+    assert resultado["campaign_id"] == "KLK-0090"
+    assert resultado["total_recomendacoes"] == 3
+    assert [x["feature"] for x in resultado["recomendacoes"]] == [
+        "has_hook", "has_face", "has_subtitle"
+    ]
+
+
+def test_campanha_categorica_nao_quebra(engine):
+    """Evita formatação numérica aplicada a características categóricas."""
+    campanha = engine.df_train.loc[
+        engine.df_train["campaign_id"] == "KLK-0169"
+    ].iloc[0]
+    resultado = engine.recomendar_campanha(campanha, n_bootstrap=2000)
+    assert resultado["total_recomendacoes"] > 0
+    assert any(x["feature"] == "text_density" for x in resultado["recomendacoes"])
