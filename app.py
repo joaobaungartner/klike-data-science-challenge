@@ -22,41 +22,67 @@ st.title("🎯 Klike Recommendations Engine")
 st.write("Informe as características de um criativo e receba sugestões contextualizadas e priorizadas.")
 st.caption("Protótipo demonstrativo. As estimativas não constituem efeitos causais.")
 
-with st.form("campanha", clear_on_submit=False):
-    st.subheader("1. Contexto da campanha")
-    a, b, c = st.columns(3)
-    with a:
-        campaign_id = st.text_input("Identificador", value="CAMPANHA-NOVA")
-        platform = st.selectbox("Plataforma", engine.categorias_validas["platform"], index=engine.categorias_validas["platform"].index("Meta"))
-    with b:
-        category = st.selectbox("Categoria", engine.categorias_validas["category"], index=engine.categorias_validas["category"].index("E-commerce"))
-        video_duration_s = st.number_input("Duração (segundos)", min_value=1, max_value=10000, value=16, step=1)
-    with c:
-        video_format = st.selectbox("Formato", engine.categorias_validas["format"], index=engine.categorias_validas["format"].index("vertical"))
-        text_density = st.selectbox("Densidade de texto", engine.categorias_validas["text_density"], index=engine.categorias_validas["text_density"].index("low"))
-    st.subheader("2. Características do criativo")
-    k1, k2, k3, k4, k5 = st.columns(5)
-    with k1:
-        has_hook = st.checkbox("Hook (3 segundos)")
-    with k2:
-        has_face = st.checkbox("Rosto humano")
-    with k3:
-        has_subtitle = st.checkbox("Legendas")
-    with k4:
-        has_cta = st.checkbox("CTA")
-    with k5:
-        is_retargeting = st.checkbox("Retargeting")
-    submitted = st.form_submit_button("Gerar recomendações", type="primary", width="stretch")
+tab_nova, tab_dataset = st.tabs(["Nova campanha", "Campanha do dataset (treino)"])
 
-if submitted:
-    campanha = {
-        "campaign_id": campaign_id.strip() or "CAMPANHA-NOVA",
-        "platform": platform, "category": category,
-        "is_retargeting": is_retargeting, "video_duration_s": int(video_duration_s),
-        "format": video_format, "has_subtitle": has_subtitle,
-        "has_cta": has_cta, "has_hook": has_hook,
-        "has_face": has_face, "text_density": text_density,
-    }
+with tab_nova:
+    with st.form("campanha", clear_on_submit=False):
+        st.subheader("1. Contexto da campanha")
+        a, b, c = st.columns(3)
+        with a:
+            campaign_id = st.text_input("Identificador", value="CAMPANHA-NOVA")
+            platform = st.selectbox("Plataforma", engine.categorias_validas["platform"], index=engine.categorias_validas["platform"].index("Meta"))
+        with b:
+            category = st.selectbox("Categoria", engine.categorias_validas["category"], index=engine.categorias_validas["category"].index("E-commerce"))
+            video_duration_s = st.number_input("Duração (segundos)", min_value=1, max_value=10000, value=16, step=1)
+        with c:
+            video_format = st.selectbox("Formato", engine.categorias_validas["format"], index=engine.categorias_validas["format"].index("vertical"))
+            text_density = st.selectbox("Densidade de texto", engine.categorias_validas["text_density"], index=engine.categorias_validas["text_density"].index("low"))
+        st.subheader("2. Características do criativo")
+        k1, k2, k3, k4, k5 = st.columns(5)
+        with k1:
+            has_hook = st.checkbox("Hook (3 segundos)")
+        with k2:
+            has_face = st.checkbox("Rosto humano")
+        with k3:
+            has_subtitle = st.checkbox("Legendas")
+        with k4:
+            has_cta = st.checkbox("CTA")
+        with k5:
+            is_retargeting = st.checkbox("Retargeting")
+        submitted = st.form_submit_button("Gerar recomendações", type="primary", width="stretch")
+    
+
+with tab_dataset:
+    st.caption(
+        "Exemplos limitados às 400 campanhas de treinamento. "
+        "O conjunto de teste não é utilizado para selecionar ou justificar recomendações."
+    )
+    ids_treino = sorted(engine.df_train["campaign_id"].tolist())
+    indice_padrao = ids_treino.index("KLK-0090") if "KLK-0090" in ids_treino else 0
+    campanha_dataset_id = st.selectbox(
+        "Campanha para avaliar", ids_treino, index=indice_padrao
+    )
+    linha_treino = engine.df_train.loc[
+        engine.df_train["campaign_id"] == campanha_dataset_id
+    ].iloc[0]
+    st.dataframe(
+        linha_treino[engine.features_reduzidas].to_frame("Valor").astype("string"),
+        width="stretch"
+    )
+    submitted_dataset = st.button("Gerar recomendações do dataset", type="primary")
+
+if submitted or submitted_dataset:
+    if submitted_dataset:
+        campanha = linha_treino.copy()
+    else:
+        campanha = {
+            "campaign_id": campaign_id.strip() or "CAMPANHA-NOVA",
+            "platform": platform, "category": category,
+            "is_retargeting": is_retargeting, "video_duration_s": int(video_duration_s),
+            "format": video_format, "has_subtitle": has_subtitle,
+            "has_cta": has_cta, "has_hook": has_hook,
+            "has_face": has_face, "text_density": text_density,
+        }
     try:
         with st.spinner("Avaliando cenários e evidências contextuais..."):
             st.session_state["klike_resultado"] = engine.recomendar_campanha(

@@ -1250,25 +1250,21 @@ class RecommendationsEngine:
         sugestão compreensível para o time de marketing.
         """
     
-        acoes = {
+        acoes_simples = {
             "has_hook": "Adicionar um hook nos primeiros 3 segundos",
             "has_face": "Incluir rosto humano no criativo",
             "has_subtitle": "Adicionar legendas ao vídeo",
             "has_cta": "Adicionar uma chamada para ação (CTA)",
-            "format": (
-                f"Alterar o formato de {original} para {proposto}"
-            ),
-            "text_density": (
-                f"Alterar a densidade de texto de "
-                f"{original} para {proposto}"
-            ),
-            "video_duration_s": (
-                f"Alterar a duração de {original:g}s "
-                f"para {proposto:g}s"
-            )
         }
-    
-        return acoes[feature]
+        if feature in acoes_simples:
+            return acoes_simples[feature]
+        if feature == "format":
+            return f"Alterar o formato de {original} para {proposto}"
+        if feature == "text_density":
+            return f"Alterar a densidade de texto de {original} para {proposto}"
+        if feature == "video_duration_s":
+            return f"Alterar a duração de {float(original):g}s para {float(proposto):g}s"
+        raise ValueError(f"Feature não suportada: {feature}")
 
 
     def recomendar_campanha(self, 

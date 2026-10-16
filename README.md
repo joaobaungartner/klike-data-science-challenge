@@ -27,6 +27,16 @@ A interface ipywidgets foi mantida como opção, e seu painel agora **substitui*
 
 **Importante:** ao executar notebooks versionados em Jupyter ou VS Code, o `.ipynb` pode ser marcado como modificado porque outputs e metadados são gravados dentro dele. Isso é comportamento normal e não implica mudança no código. Se você não alterou intencionalmente o notebook, use `git restore notebooks/parte-3-recommendations-engine.ipynb` para descartar apenas os outputs locais, após conferir que não há mudanças que queira guardar.
 
+## Requisitos do desafio e resultados principais
+
+O repositório cobre quatro partes: [EDA](notebooks/parte-1.ipynb), [modelagem](notebooks/parte-2.ipynb), [recomendações](notebooks/parte-3.ipynb) e **[Parte 4 — Visão de Produto](docs/parte-4-visao-de-produto.md)** (features extraíveis de vídeos, arquitetura de produção e próximos experimentos).
+
+Na Parte 2, o Ridge reduzido (10 características conhecidas antes da veiculação) atingiu **MAE 6,685**, **RMSE 8,671** e **R² 0,667** no conjunto de teste de 100 campanhas. O desempenho foi medido em holdout, distinto das 400 campanhas de treinamento usadas para referências observacionais na Parte 3.
+
+O protótipo possui agora duas entradas na interface Streamlit: **Nova campanha** e **Campanha do dataset (treino)**. A campanha **KLK-0090** é uma linha real do treinamento que produz três sugestões elegíveis (hook, rosto humano, legendas) sem relaxar os critérios. Em outras campanhas pode haver menos de três recomendações; **não inventamos ganhos positivos**. As estimativas do Ridge são diferenças entre previsões, não impactos causais.
+
+A análise de riscos e a estratégia para colocar o sistema em produção estão na [Parte 4](docs/parte-4-visao-de-produto.md). O modelo salvo foi treinado com scikit-learn 1.9.1, versão fixada nas dependências.
+
 ## Organização
 
 ```text
@@ -38,10 +48,13 @@ notebooks/parte-2.ipynb
 notebooks/parte-3.ipynb                          # análise, evidências e testes
 notebooks/parte-3-recommendations-engine.ipynb   # interface interativa opcional
 app.py                                           # interface Streamlit recomendada
+docs/parte-4-visao-de-produto.md                # respostas abertas obrigatórias
 src/recommendations_engine.py                    # lógica reutilizável
 tests/test_recommendations_engine.py
 requirements.txt
 ```
+
+Para executar a Parte 1 a partir de um clone, rode uma vez `python scripts/prepare_eda_notebook.py` (corrige o caminho legado do CSV sem mudar a análise). Se o notebook aparecer como modificado no Git após executar, isso é esperado. A Parte 2 e a Parte 3 usam caminhos compatíveis com a estrutura `data/` e `models/`.
 
 Os caminhos no notebook da Parte 3 funcionam tanto com a raiz quanto com a pasta `notebooks/` como diretório de trabalho.
 
